@@ -14,7 +14,6 @@ func AddOTHandlers(cl *client.Client) {
 }
 
 func otHandlers(r *request.Request) {
-
 	sp := opentracing.StartSpan(r.Operation.Name)
 	ext.SpanKindRPCClient.Set(sp)
 	ext.Component.Set(sp, "go-aws")
@@ -22,7 +21,7 @@ func otHandlers(r *request.Request) {
 	ext.HTTPUrl.Set(sp, r.HTTPRequest.URL.String())
 	ext.PeerService.Set(sp, r.ClientInfo.ServiceName)
 
-	_ = Inject(sp, r.HTTPRequest.Header)
+	_ = inject(sp, r.HTTPRequest.Header)
 
 	r.Handlers.Complete.PushBack(func(req *request.Request) {
 		ext.HTTPStatusCode.Set(sp, uint16(req.HTTPResponse.StatusCode))
@@ -32,10 +31,9 @@ func otHandlers(r *request.Request) {
 	r.Handlers.Retry.PushBack(func(req *request.Request) {
 		sp.LogFields(log.String("event", "retry"))
 	})
-
 }
 
-func Inject(span opentracing.Span, header http.Header) error {
+func inject(span opentracing.Span, header http.Header) error {
 	return opentracing.GlobalTracer().Inject(span.Context(), opentracing.HTTPHeaders,
 		opentracing.HTTPHeadersCarrier(header))
 }
