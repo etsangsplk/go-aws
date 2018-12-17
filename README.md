@@ -36,3 +36,6 @@ result, err := dbClient.ListTables(&dynamodb.ListTablesInput{})
 
 ```
 
+## License
+
+[Apache 2.0 License](./LICENSE).
