@@ -11,7 +11,8 @@ import (
 	"time"
 )
 
-func TestTimeConsuming(t *testing.T) {
+// Test requires running local instance of DynamoDB
+func TestAWS(t *testing.T) {
 	tracer := mocktracer.New()
 	opentracing.InitGlobalTracer(tracer)
 
@@ -35,9 +36,16 @@ func TestTimeConsuming(t *testing.T) {
 		fmt.Println(table)
 	}
 
-	time.Sleep(2 * time.Second)
-	//
 	spans := tracer.FinishedSpans()
+
+	count := 20
+
+	for len(spans) != 1 && count > 0 {
+		spans = tracer.FinishedSpans()
+		count -= 1
+		time.Sleep(100 * time.Millisecond)
+	}
+
 	fmt.Println(spans)
 
 	if len(spans) != 1 {
